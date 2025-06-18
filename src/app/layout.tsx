@@ -8,7 +8,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'PropertyApp - Real Estate Tools',
+  title: 'Home Price Prediction',
   description: 'Property details form and price predictions',
 };
 
