@@ -10,7 +10,7 @@ import type { Prediction } from '../../lib/supabase';
 
 interface PredictionCardProps {
   prediction: Prediction;
-  onEdit: (prediction: Prediction) => void;
+  // onEdit: (prediction: Prediction) => void;
   onDelete: (prediction: Prediction) => void;
   isDeleting: boolean;
   isLastItem?: boolean;

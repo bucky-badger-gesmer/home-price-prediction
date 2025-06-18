@@ -152,10 +152,10 @@ export function PredictionsList() {
   };
 
   // Edit handlers
-  const handleEditClick = (prediction: Prediction) => {
-    setPredictionToEdit(prediction);
-    // setEditModalOpen(true);
-  };
+  // const handleEditClick = (prediction: Prediction) => {
+  //   setPredictionToEdit(prediction);
+  //   setEditModalOpen(true);
+  // };
 
   // const calculateUpdatedPrice = (sqft: number, beds: number) => {
   //   const basePricePerSqft = 150;
@@ -232,7 +232,7 @@ export function PredictionsList() {
           <PredictionCard
             key={prediction.id}
             prediction={prediction}
-            onEdit={handleEditClick}
+            // onEdit={handleEditClick}
             onDelete={handleDeleteClick}
             isDeleting={deletingIds.has(prediction.id)}
             isLastItem={index === predictions.length - 1}
