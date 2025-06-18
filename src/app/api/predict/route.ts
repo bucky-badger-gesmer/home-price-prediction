@@ -1,21 +1,39 @@
 import { NextResponse } from 'next/server';
 import { predictPrice, trainModel } from '../../../../lib/model';
+import { supabase } from '../../../../lib/supabase';
 
-// Define expected request body type
 interface PredictRequestBody {
   sqft: number;
   bedrooms: number;
 }
 
-// Define handler with proper request type
 export async function POST(req: Request): Promise<Response> {
   try {
     const { sqft, bedrooms } = (await req.json()) as PredictRequestBody;
 
-    await trainModel(); // Will only run once due to global caching
+    await trainModel();
     const price = predictPrice(sqft, bedrooms);
+    const predictedPrice = Math.round(price); // Rounded to nearest dollar
 
-    return NextResponse.json({ predictedPrice: price.toFixed(0) });
+    // Insert prediction into Supabase
+    const { error } = await supabase.from('Predictions').insert([
+      {
+        square_feet: sqft,
+        bedrooms: bedrooms,
+        predicted_price: predictedPrice,
+        created_at: new Date().toISOString(), // optional if table handles timestamps
+      },
+    ]);
+
+    if (error) {
+      console.error('Error inserting into Supabase:', error.message);
+      return NextResponse.json(
+        { error: 'Prediction saved but failed to store data.' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ predictedPrice });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'Unexpected error occurred';
