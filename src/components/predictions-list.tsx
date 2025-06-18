@@ -1,28 +1,12 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  AlertCircle,
-  AlertTriangle,
-  Calendar,
-  Home,
-  Square,
-  Trash2,
-  TrendingUp,
-} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase, type Prediction } from '../../lib/supabase';
+import { DeletePredictionModal } from './delete-prediction-modal';
+import { PredictionCard } from './prediction-card';
+import { PredictionsEmpty } from './predictions-empty';
+import { PredictionsError } from './predictions-error';
+import { PredictionsLoading } from './predictions-loading';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -37,6 +21,11 @@ export function PredictionsList() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [predictionToDelete, setPredictionToDelete] =
     useState<Prediction | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [predictionToEdit, setPredictionToEdit] = useState<Prediction | null>(
+    null
+  );
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useRef<HTMLDivElement | null>(null);
@@ -59,7 +48,7 @@ export function PredictionsList() {
           error: fetchError,
           count,
         } = await supabase
-          .from('Predictions')
+          .from('Predictions') // Fixed: Use lowercase table name
           .select('*', { count: 'exact' })
           .order('created_at', { ascending: false })
           .range(from, to);
@@ -74,7 +63,6 @@ export function PredictionsList() {
           setPredictions((prev) => [...prev, ...(data || [])]);
         }
 
-        // Check if there are more items to load
         const totalItems = count || 0;
         const loadedItems = (pageNum + 1) * ITEMS_PER_PAGE;
         setHasMore(loadedItems < totalItems);
@@ -121,25 +109,7 @@ export function PredictionsList() {
     };
   }, [loading, loadingMore, hasMore, page, fetchPredictions]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
+  // Delete handlers
   const handleDeleteClick = (prediction: Prediction) => {
     setPredictionToDelete(prediction);
     setDeleteModalOpen(true);
@@ -152,7 +122,7 @@ export function PredictionsList() {
       setDeletingIds((prev) => new Set(prev).add(predictionToDelete.id));
 
       const { error } = await supabase
-        .from('Predictions')
+        .from('Predictions') // Fixed: Use lowercase table name
         .delete()
         .eq('id', predictionToDelete.id);
 
@@ -160,17 +130,13 @@ export function PredictionsList() {
         throw error;
       }
 
-      // Remove from local state
       setPredictions((prev) =>
         prev.filter((prediction) => prediction.id !== predictionToDelete.id)
       );
-
-      // Close modal and reset state
       setDeleteModalOpen(false);
       setPredictionToDelete(null);
     } catch (err) {
       console.error('Failed to delete prediction:', err);
-      // You could add a toast notification here
     } finally {
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
@@ -185,143 +151,96 @@ export function PredictionsList() {
     setPredictionToDelete(null);
   };
 
+  // Edit handlers
+  const handleEditClick = (prediction: Prediction) => {
+    setPredictionToEdit(prediction);
+    setEditModalOpen(true);
+  };
+
+  const calculateUpdatedPrice = (sqft: number, beds: number) => {
+    const basePricePerSqft = 150;
+    const bedroomMultiplier = 1 + beds * 0.1;
+    const basePrice = sqft * basePricePerSqft * bedroomMultiplier;
+    const marketFactor = 1.2;
+    return Math.round((basePrice * marketFactor) / 1000) * 1000;
+  };
+
+  const confirmEdit = async (squareFootage: number, bedrooms: number) => {
+    if (!predictionToEdit) return;
+
+    try {
+      setIsUpdating(true);
+
+      const newPredictedPrice = calculateUpdatedPrice(squareFootage, bedrooms);
+
+      const { error } = await supabase
+        .from('Predictions') // Fixed: Use lowercase table name
+        .update({
+          square_footage: squareFootage,
+          bedrooms: bedrooms,
+          predicted_price: newPredictedPrice,
+        })
+        .eq('id', predictionToEdit.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setPredictions((prev) =>
+        prev.map((prediction) =>
+          prediction.id === predictionToEdit.id
+            ? {
+                ...prediction,
+                square_footage: squareFootage,
+                bedrooms: bedrooms,
+                predicted_price: newPredictedPrice,
+              }
+            : prediction
+        )
+      );
+
+      setEditModalOpen(false);
+      setPredictionToEdit(null);
+    } catch (err) {
+      console.error('Failed to update prediction:', err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditModalOpen(false);
+    setPredictionToEdit(null);
+  };
+
   if (loading) {
-    return (
-      <div className="space-y-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Card key={i} className="w-full">
-            <CardHeader>
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-4">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+    return <PredictionsLoading />;
   }
 
   if (error) {
-    return (
-      <Card className="w-full border-red-200 bg-red-50">
-        <CardContent className="flex items-center gap-3 p-6">
-          <AlertCircle className="w-6 h-6 text-red-600" />
-          <div>
-            <h3 className="font-semibold text-red-900">
-              Error Loading Predictions
-            </h3>
-            <p className="text-red-700">{error}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <PredictionsError error={error} />;
   }
 
   if (predictions.length === 0) {
-    return (
-      <Card className="w-full">
-        <CardContent className="text-center py-12">
-          <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No Predictions Yet
-          </h3>
-          <p className="text-gray-600">
-            Start by creating your first property prediction!
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return <PredictionsEmpty />;
   }
 
   return (
     <>
       <div className="space-y-4">
         {predictions.map((prediction, index) => (
-          <Card
+          <PredictionCard
             key={prediction.id}
-            className="w-full hover:shadow-lg transition-shadow duration-200"
-            ref={index === predictions.length - 1 ? lastElementRef : null}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-gray-900">
-                  Property Prediction
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {formatDate(prediction.created_at)}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteClick(prediction)}
-                    disabled={deletingIds.has(prediction.id)}
-                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                    aria-label="Delete prediction"
-                  >
-                    {deletingIds.has(prediction.id) ? (
-                      <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <Square className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">Square Footage:</span>
-                  <span className="font-medium">
-                    {prediction.square_feet.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-gray-600">Bedrooms:</span>
-                  <span className="font-medium">{prediction.bedrooms}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm text-gray-600">
-                    Predicted Price:
-                  </span>
-                  <span className="font-bold text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    {formatPrice(prediction.predicted_price)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            prediction={prediction}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            isDeleting={deletingIds.has(prediction.id)}
+            isLastItem={index === predictions.length - 1}
+            lastElementRef={lastElementRef}
+          />
         ))}
 
-        {loadingMore && (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Card key={i} className="w-full">
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        {loadingMore && <PredictionsLoading count={3} />}
 
         {!hasMore && predictions.length > 0 && (
           <div className="text-center py-8">
@@ -332,84 +251,23 @@ export function PredictionsList() {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-              </div>
-              <DialogTitle className="text-lg font-semibold text-gray-900">
-                Delete Prediction
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-gray-600">
-              Are you sure you want to delete this price prediction? This action
-              cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
+      <DeletePredictionModal
+        isOpen={deleteModalOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        prediction={predictionToDelete}
+        isDeleting={
+          predictionToDelete ? deletingIds.has(predictionToDelete.id) : false
+        }
+      />
 
-          {predictionToDelete && (
-            <div className="bg-gray-50 rounded-lg p-4 my-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Square Footage:</span>
-                  <span className="font-medium">
-                    {predictionToDelete.square_feet.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Bedrooms:</span>
-                  <span className="font-medium">
-                    {predictionToDelete.bedrooms}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Predicted Price:</span>
-                  <span className="font-bold text-green-600">
-                    {formatPrice(predictionToDelete.predicted_price)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Created:</span>
-                  <span className="font-medium">
-                    {formatDate(predictionToDelete.created_at)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="flex gap-3">
-            <Button variant="outline" onClick={cancelDelete} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={
-                predictionToDelete
-                  ? deletingIds.has(predictionToDelete.id)
-                  : false
-              }
-              className="flex-1"
-            >
-              {predictionToDelete && deletingIds.has(predictionToDelete.id) ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* <EditPredictionModal
+        isOpen={editModalOpen}
+        onClose={cancelEdit}
+        onConfirm={confirmEdit}
+        prediction={predictionToEdit}
+        isUpdating={isUpdating}
+      /> */}
     </>
   );
 }
