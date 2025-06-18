@@ -21,11 +21,11 @@ export function PredictionsList() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [predictionToDelete, setPredictionToDelete] =
     useState<Prediction | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [predictionToEdit, setPredictionToEdit] = useState<Prediction | null>(
-    null
-  );
-  const [isUpdating, setIsUpdating] = useState(false);
+  // const [editModalOpen, setEditModalOpen] = useState(false);
+  // const [predictionToEdit, setPredictionToEdit] = useState<Prediction | null>(
+  //   null
+  // );
+  // const [isUpdating, setIsUpdating] = useState(false);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useRef<HTMLDivElement | null>(null);
@@ -154,64 +154,64 @@ export function PredictionsList() {
   // Edit handlers
   const handleEditClick = (prediction: Prediction) => {
     setPredictionToEdit(prediction);
-    setEditModalOpen(true);
+    // setEditModalOpen(true);
   };
 
-  const calculateUpdatedPrice = (sqft: number, beds: number) => {
-    const basePricePerSqft = 150;
-    const bedroomMultiplier = 1 + beds * 0.1;
-    const basePrice = sqft * basePricePerSqft * bedroomMultiplier;
-    const marketFactor = 1.2;
-    return Math.round((basePrice * marketFactor) / 1000) * 1000;
-  };
+  // const calculateUpdatedPrice = (sqft: number, beds: number) => {
+  //   const basePricePerSqft = 150;
+  //   const bedroomMultiplier = 1 + beds * 0.1;
+  //   const basePrice = sqft * basePricePerSqft * bedroomMultiplier;
+  //   const marketFactor = 1.2;
+  //   return Math.round((basePrice * marketFactor) / 1000) * 1000;
+  // };
 
-  const confirmEdit = async (squareFootage: number, bedrooms: number) => {
-    if (!predictionToEdit) return;
+  // const confirmEdit = async (squareFootage: number, bedrooms: number) => {
+  //   if (!predictionToEdit) return;
 
-    try {
-      setIsUpdating(true);
+  //   try {
+  //     setIsUpdating(true);
 
-      const newPredictedPrice = calculateUpdatedPrice(squareFootage, bedrooms);
+  //     const newPredictedPrice = calculateUpdatedPrice(squareFootage, bedrooms);
 
-      const { error } = await supabase
-        .from('Predictions') // Fixed: Use lowercase table name
-        .update({
-          square_footage: squareFootage,
-          bedrooms: bedrooms,
-          predicted_price: newPredictedPrice,
-        })
-        .eq('id', predictionToEdit.id);
+  //     const { error } = await supabase
+  //       .from('Predictions') // Fixed: Use lowercase table name
+  //       .update({
+  //         square_footage: squareFootage,
+  //         bedrooms: bedrooms,
+  //         predicted_price: newPredictedPrice,
+  //       })
+  //       .eq('id', predictionToEdit.id);
 
-      if (error) {
-        throw error;
-      }
+  //     if (error) {
+  //       throw error;
+  //     }
 
-      setPredictions((prev) =>
-        prev.map((prediction) =>
-          prediction.id === predictionToEdit.id
-            ? {
-                ...prediction,
-                square_footage: squareFootage,
-                bedrooms: bedrooms,
-                predicted_price: newPredictedPrice,
-              }
-            : prediction
-        )
-      );
+  //     setPredictions((prev) =>
+  //       prev.map((prediction) =>
+  //         prediction.id === predictionToEdit.id
+  //           ? {
+  //               ...prediction,
+  //               square_footage: squareFootage,
+  //               bedrooms: bedrooms,
+  //               predicted_price: newPredictedPrice,
+  //             }
+  //           : prediction
+  //       )
+  //     );
 
-      setEditModalOpen(false);
-      setPredictionToEdit(null);
-    } catch (err) {
-      console.error('Failed to update prediction:', err);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  //     setEditModalOpen(false);
+  //     setPredictionToEdit(null);
+  //   } catch (err) {
+  //     console.error('Failed to update prediction:', err);
+  //   } finally {
+  //     setIsUpdating(false);
+  //   }
+  // };
 
-  const cancelEdit = () => {
-    setEditModalOpen(false);
-    setPredictionToEdit(null);
-  };
+  // const cancelEdit = () => {
+  //   setEditModalOpen(false);
+  //   setPredictionToEdit(null);
+  // };
 
   if (loading) {
     return <PredictionsLoading />;

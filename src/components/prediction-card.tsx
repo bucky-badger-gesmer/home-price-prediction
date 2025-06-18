@@ -19,7 +19,7 @@ interface PredictionCardProps {
 
 export function PredictionCard({
   prediction,
-  onEdit,
+  // onEdit,
   onDelete,
   isDeleting,
   isLastItem,
