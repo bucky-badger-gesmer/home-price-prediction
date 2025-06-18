@@ -1,0 +1,14 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.run": "onSave",
+  "eslint.validate": ["javascript", "typescript"],
+  "prettier.singleQuote": true,
+  "files.exclude": {
+    "node_modules": true
+  }
+}
