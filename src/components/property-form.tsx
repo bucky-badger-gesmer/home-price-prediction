@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bed, Home, Ruler, TrendingUp } from 'lucide-react';
+import { Bed, Home, Loader2, Ruler, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -21,6 +21,7 @@ export default function PropertyForm() {
   const [bedrooms, setBedrooms] = useState('');
   const [errors, setErrors] = useState({ squareFootage: '', bedrooms: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [predictedPrice, setPredictedPrice] = useState(0);
 
   const validateSquareFootage = (value: string) => {
@@ -93,13 +94,21 @@ export default function PropertyForm() {
     e.preventDefault();
     if (!isFormValid()) return;
 
-    const sqft = Number.parseFloat(squareFootage);
-    const beds = Number.parseInt(bedrooms);
+    setIsLoading(true);
 
-    const predicted = await predict(sqft, beds);
-    if (predicted !== null) {
-      setPredictedPrice(predicted);
-      setIsSubmitted(true);
+    try {
+      const sqft = Number.parseFloat(squareFootage);
+      const beds = Number.parseInt(bedrooms);
+
+      const predicted = await predict(sqft, beds);
+      if (predicted !== null) {
+        setPredictedPrice(predicted);
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error('Error during prediction:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -109,6 +118,14 @@ export default function PropertyForm() {
       currency: 'USD',
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const resetForm = () => {
+    setIsSubmitted(false);
+    setSquareFootage('');
+    setBedrooms('');
+    setErrors({ squareFootage: '', bedrooms: '' });
+    setPredictedPrice(0);
   };
 
   return (
@@ -150,7 +167,7 @@ export default function PropertyForm() {
                 }`}
                 min="1"
                 step="1"
-                disabled={isSubmitted}
+                disabled={isSubmitted || isLoading}
               />
               {errors.squareFootage && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
@@ -182,7 +199,7 @@ export default function PropertyForm() {
                 }`}
                 min="0"
                 step="1"
-                disabled={isSubmitted}
+                disabled={isSubmitted || isLoading}
               />
               {errors.bedrooms && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
@@ -193,20 +210,28 @@ export default function PropertyForm() {
 
             <Button
               type="submit"
-              disabled={!isFormValid() || isSubmitted}
+              disabled={!isFormValid() || isSubmitted || isLoading}
               className={`w-full py-3 text-white font-medium rounded-lg transition-all duration-200 ${
-                isFormValid() && !isSubmitted
+                isFormValid() && !isSubmitted && !isLoading
                   ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
                   : 'bg-gray-300 cursor-not-allowed'
               }`}
             >
-              {isSubmitted
-                ? 'Prediction Complete'
-                : isFormValid()
-                ? 'Submit Property Details'
-                : 'Please Complete All Fields'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Calculating Prediction...
+                </>
+              ) : isSubmitted ? (
+                'Prediction Complete'
+              ) : isFormValid() ? (
+                'Submit Property Details'
+              ) : (
+                'Please Complete All Fields'
+              )}
             </Button>
           </form>
+
           {isSubmitted && (
             <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
               <div className="text-center">
@@ -225,12 +250,7 @@ export default function PropertyForm() {
                 </p>
                 <div className="flex flex-col gap-4 mt-6">
                   <Button
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setSquareFootage('');
-                      setBedrooms('');
-                      setErrors({ squareFootage: '', bedrooms: '' });
-                    }}
+                    onClick={resetForm}
                     variant="outline"
                     className="w-full text-green-600 border-green-300 hover:bg-green-50"
                   >
