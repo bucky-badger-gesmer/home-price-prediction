@@ -61,7 +61,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<REPLACE_WITH_SUPABASE_API_KEY>
 2. Build image:
 
 ```
-docker build -t home-price-prediction
+docker build -t home-price-prediction .
 ```
 
 3. Run container:
