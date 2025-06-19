@@ -4,21 +4,12 @@ import type React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Bed,
-  Calendar,
-  Edit3,
-  Home,
-  Ruler,
-  Trash2,
-  TrendingUp,
-} from 'lucide-react';
+import { Bed, Calendar, Home, Ruler, Trash2, TrendingUp } from 'lucide-react';
 import type { Prediction } from '../../lib/supabase';
 import { Button } from './ui/button';
 
 interface PredictionCardProps {
   prediction: Prediction;
-  // onEdit: (prediction: Prediction) => void;
   onDelete: (prediction: Prediction) => void;
   isDeleting: boolean;
   isLastItem?: boolean;
@@ -27,7 +18,6 @@ interface PredictionCardProps {
 
 export function PredictionCard({
   prediction,
-  // onEdit,
   onDelete,
   isDeleting,
   isLastItem,
@@ -94,16 +84,6 @@ export function PredictionCard({
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            // onClick={() => onEdit(prediction)}
-            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-            aria-label="Edit prediction"
-          >
-            <Edit3 className="w-4 h-4 mr-1" />
-            Edit
-          </Button>
           <Button
             variant="ghost"
             size="sm"
