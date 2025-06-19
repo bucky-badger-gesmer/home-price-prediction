@@ -9,7 +9,7 @@ export default function PricePredictionsPage() {
             Price Predictions
           </h1>
           <p className="text-gray-600 text-lg">
-            View all your property price predictions
+            View all existing property price predictions
           </p>
         </div>
 
