@@ -29,7 +29,7 @@ git clone https://github.com/your-username/home-price-prediction.git
 cd home-price-prediction
 ```
 
-2. Create a `.env` file at the root with the following credentials:
+2. Create a `.env` file at the root with the following contents:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=<REPLACE_WITH_SUPABASE_URL>
@@ -49,9 +49,11 @@ App will be available at `localhost:3000`
 
 ### 3. 🐳 Run Locally with Docker
 
+#### Prerequisites
+
 - [Docker](https://www.docker.com/get-started/) is installed
 
-1. Create a `.env` file at the root with the following credentials:
+1. Create a `.env` file at the root with the following contents:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=<REPLACE_WITH_SUPABASE_URL>
