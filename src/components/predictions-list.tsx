@@ -85,7 +85,7 @@ export function PredictionsList() {
         setLoadingMore(false);
       }
     },
-    [sortBy] // now just depends on sortBy
+    [sortBy]
   );
 
   // Initial load

@@ -3,10 +3,18 @@
 import type React from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bed, Calendar, Ruler, Trash2, TrendingUp } from 'lucide-react';
+import {
+  Bed,
+  Calendar,
+  Edit3,
+  Home,
+  Ruler,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react';
 import type { Prediction } from '../../lib/supabase';
+import { Button } from './ui/button';
 
 interface PredictionCardProps {
   prediction: Prediction;
@@ -52,36 +60,13 @@ export function PredictionCard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold text-gray-900">
-            Property Prediction
+            <Home />
           </CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
               <Calendar className="w-3 h-3 mr-1" />
               {formatDate(prediction.created_at)}
             </Badge>
-            {/* <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(prediction)}
-              className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-              aria-label="Edit prediction"
-            >
-              <Edit3 className="w-4 h-4" />
-            </Button> */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(prediction)}
-              disabled={isDeleting}
-              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-              aria-label="Delete prediction"
-            >
-              {isDeleting ? (
-                <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
-            </Button>
           </div>
         </div>
       </CardHeader>
@@ -106,6 +91,34 @@ export function PredictionCard({
               {formatPrice(prediction.predicted_price)}
             </span>
           </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4 border-t mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            // onClick={() => onEdit(prediction)}
+            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+            aria-label="Edit prediction"
+          >
+            <Edit3 className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(prediction)}
+            disabled={isDeleting}
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            aria-label="Delete prediction"
+          >
+            {isDeleting ? (
+              <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin mr-2" />
+            ) : (
+              <Trash2 className="w-4 h-4 mr-1" />
+            )}
+            Delete
+          </Button>
         </div>
       </CardContent>
     </Card>
