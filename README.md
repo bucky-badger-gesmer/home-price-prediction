@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏡 Home Price Prediction
 
-## Getting Started
+This is a simple app that predicts home prices based on user input such as square footage, number of bedrooms, and other features.
 
-First, run the development server:
+## 🚀 How to Run the App
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+There are **three ways** to run this app:
+
+---
+
+### 1. 🌐 Use the Deployed Version
+
+The app is live and available here:
+
+🔗 [https://home-price-prediction-gesmer.netlify.app](https://home-price-prediction-gesmer.netlify.app)
+
+---
+
+### 2. 🧑‍💻 Run Locally with Next.js
+
+#### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+
+1. Clone the repository:
+
+```
+git clone https://github.com/your-username/home-price-prediction.git
+cd home-price-prediction
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create a `.env` file at the root with the following credentials:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=<REPLACE_WITH_SUPABASE_URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<REPLACE_WITH_SUPABASE_API_KEY>
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Install dependencies and run:
 
-## Learn More
+```
+   npm i
+   npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+App will be available at `localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. 🐳 Run Locally with Docker
 
-## Deploy on Vercel
+- [Docker](https://www.docker.com/get-started/) is installed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Create a `.env` file at the root with the following credentials:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+NEXT_PUBLIC_SUPABASE_URL=<REPLACE_WITH_SUPABASE_URL>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<REPLACE_WITH_SUPABASE_API_KEY>
+```
+
+2. Build image:
+
+```
+docker build -t home-price-prediction
+```
+
+3. Run container:
+
+```
+docker run -p 3000:3000 home-price-prediction
+```
+
+App will be available at `localhost:3000`
