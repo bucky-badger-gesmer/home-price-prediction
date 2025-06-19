@@ -53,20 +53,27 @@ App will be available at `localhost:3000`
 
 - [Docker](https://www.docker.com/get-started/) is installed
 
-1. Create a `.env` file at the root with the following contents:
+1. Clone the repository:
+
+```
+git clone https://github.com/your-username/home-price-prediction.git
+cd home-price-prediction
+```
+
+2. Create a `.env` file at the root with the following contents:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=<REPLACE_WITH_SUPABASE_URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<REPLACE_WITH_SUPABASE_API_KEY>
 ```
 
-2. Build image:
+3. Build image:
 
 ```
 docker build -t home-price-prediction .
 ```
 
-3. Run container:
+4. Run container:
 
 ```
 docker run -p 3000:3000 home-price-prediction
