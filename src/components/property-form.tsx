@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Home, Ruler, TrendingUp } from 'lucide-react';
+import { Bed, Home, Ruler, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -164,7 +164,7 @@ export default function PropertyForm() {
                 htmlFor="bedrooms"
                 className="text-sm font-medium text-gray-700 flex items-center gap-2"
               >
-                <Home className="w-4 h-4" />
+                <Bed className="w-4 h-4" />
                 Number of Bedrooms
               </Label>
               <Input
