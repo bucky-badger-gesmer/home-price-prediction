@@ -5,7 +5,7 @@ import type React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Home, Ruler, Trash2, TrendingUp } from 'lucide-react';
+import { Bed, Calendar, Ruler, Trash2, TrendingUp } from 'lucide-react';
 import type { Prediction } from '../../lib/supabase';
 
 interface PredictionCardProps {
@@ -95,7 +95,7 @@ export function PredictionCard({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 text-green-600" />
+            <Bed className="w-4 h-4 text-green-600" />
             <span className="text-sm text-gray-600">Bedrooms:</span>
             <span className="font-medium">{prediction.bedrooms}</span>
           </div>
