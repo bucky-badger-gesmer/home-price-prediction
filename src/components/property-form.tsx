@@ -129,7 +129,7 @@ export default function PropertyForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-start justify-center p-4">
       <Card className="w-full max-w-lg shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
         <CardHeader className="text-center p-8">
           <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mb-4">
