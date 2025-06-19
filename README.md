@@ -39,8 +39,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<REPLACE_WITH_SUPABASE_API_KEY>
 3. Install dependencies and run:
 
 ```
-   npm i
-   npm run dev
+npm i
+npm run dev
 ```
 
 App will be available at `localhost:3000`
